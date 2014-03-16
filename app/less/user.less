@@ -1,0 +1,62 @@
+@bg-color: #FFFFFF;
+@import url(http://fonts.googleapis.com/css?family=Jacques+Francois);
+@import url(http://fonts.googleapis.com/css?family=Almendra+SC);
+
+
+header h1{
+  font-family: 'Almendra SC', serif;
+  text-align: center;
+  font-size: 5em;
+  height: 75px;
+  line-height: 75px;
+}
+
+p{
+  font-family: 'Jacques Francois', serif;
+  margin: 0px;
+  line-height: 1.4em;
+}
+
+p:first-letter{
+  font-family: 'Almendra SC', serif;
+  font-size: 2em;
+}
+
+p:first-line{
+  line-height: 1.4em;
+}
+
+h4{
+  font-family: 'Jacques Francois', serif;
+  text-align: center;
+  margin: 5px;
+}
+
+.top-bar a{
+  font-family: 'Jacques Francois', serif;
+}
+
+/*---Register and Login Boxes---*/
+.centered{
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+}
+
+#registerBox, #loginBox{
+  z-index: 99;
+  background-color: white;
+  display: none;
+  width: 50%;
+  -webkit-box-shadow: 0px 0px 16px 0px rgba(50, 50, 50, 0.67);
+  -moz-box-shadow:    0px 0px 16px 0px rgba(50, 50, 50, 0.67);
+  box-shadow:         0px 0px 16px 0px rgba(50, 50, 50, 0.67);
+}
+
+#registerBox{
+  height: 370px;
+}
+
+#loginBox{
+  height: 295px;
+}
