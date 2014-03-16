@@ -22,6 +22,8 @@ html(class='no-js', lang='en')
         ul.left
         ul.right
           if user
+            li: a(href='/game') Play
+            li.divider
             li: a(href='/users/'+user._id.toString())= user.name
             li.divider
             li: a(href="/logout") Log Out

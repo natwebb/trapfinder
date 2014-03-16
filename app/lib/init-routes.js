@@ -15,8 +15,10 @@ module.exports = function(req, res, next){
 function load(app, fn){
   var home = require('../routes/home');
   var users = require('../routes/users');
+  var game = require('../routes/game');
 
   app.get('/', d, home.index);
+  app.get('/game', d, game.index);
   app.post('/register', d, users.create);
   app.post('/login', d, users.authenticate);
   app.get('/logout', d, users.logout);
