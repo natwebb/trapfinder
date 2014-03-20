@@ -1,7 +1,11 @@
 extends ../shared/template
 
-block content
-  canvas
+block game
+  #wrapper
+    canvas(width='650', height='650')#game
 
 block scripts
   script(src='/js/source/game.js')
+
+block less
+  link(rel='stylesheet', href='/less/game.css')
