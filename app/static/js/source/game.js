@@ -6,6 +6,13 @@
   var context;
   var smartMap = [];
   var player;
+  var trapTimer;
+  var walkTimer = 0;
+  var trapActive = false;
+  var spriteX = 128;
+  var drawTreasure = [];
+  var request;
+  var alive = true;
 
   $(document).ready(initialize);
 
@@ -17,7 +24,7 @@
     $('body').keyup(keyUp);
   }
 
-/*---Map Prep Functions---*/
+/*---------------------------Startup Functions---------------------------*/
   function prepCanvas(){
     drawingCanvas = document.getElementById('game');
     if(drawingCanvas.getContext){
@@ -25,15 +32,16 @@
     }
   }
 
+/*---------------------------Map Prep Functions---------------------------*/
   function generateMap(level){
     var map = [];
     var trapoptions, treasureoptions = [];
     if(level===1){
-      trapoptions = ['gt','gt','gt','gt','gt','gt','gt','gt','bt','bt'];
-      treasureoptions = ['tc','tc','tc','tc','tc','tc','ts','ts','ts','tg'];
+      trapoptions = ['gt','gt','gt','gt','gt','gt','gt','bt','bt','bt'];
+      treasureoptions = ['tc','tc','tc','tc','tc','tc','tc','ts','ts','ts'];
     }
     else if(level===2){
-      trapoptions = ['gt','gt','gt','gt','gt','bt','bt','bt','bt','bt'];
+      trapoptions = ['gt','gt','gt','gt','bt','bt','bt','bt','bt','bt'];
       treasureoptions = ['tc','tc','tc','tc','ts','ts','ts','ts','tg','tg'];
     }
     else if(level===3){
@@ -102,41 +110,47 @@
       rowCount++;
     });
     console.log(smartMap);
-    drawMap(smartMap);
   }
 
-/*---Animation Functions---*/
-  function drawMap(map){
-    _.forEach(map, function(row){
-      _.forEach(row, function(mapObject){
-        context.drawImage(mapObject.sprite, mapObject.x, mapObject.y);
-      });
-    });
-  }
-
+/*---------------------------Animation Functions---------------------------*/
   function startGame(){
     player = new Player();
-    if (window.requestAnimationFrame !== undefined){
-      window.requestAnimationFrame(animate);
+    if(!request){
+      animate();
     }
   }
 
   function animate(){
     context.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
     drawMap(smartMap);
-    context.drawImage(player.sprite, player.x, player.y);
+    context.drawImage(player.sprite, spriteX, 0, player.width, player.height, player.x, player.y, player.width, player.height);
     testCollision();
     player.x += player.xvelocity;
     player.y += player.yvelocity;
     if(window.requestAnimationFrame !== undefined){
-      window.requestAnimationFrame(animate);
+      request = window.requestAnimationFrame(animate);
     }
+  }
+
+  function drawMap(map){
+    context.save();
+    context.beginPath();
+    context.arc(player.x+(player.width/2), player.y+(player.height/2), 97.5, 0, Math.PI * 2, false);
+    context.clip();
+    _.forEach(map, function(row){
+      _.forEach(row, function(mapObject){
+        context.drawImage(mapObject.sprite, mapObject.x, mapObject.y);
+      });
+    });
+    _.forEach(drawTreasure, function(t){
+      context.drawImage(t.treasure, t.x, t.y);
+    });
+    context.restore();
   }
 
   function testCollision(){
     var currentCol = Math.floor(player.x/65);
     var currentRow = Math.floor(player.y/65);
-    //console.log(currentCol, currentRow);
     /*---Tests Against Boundaries of the Canvas---*/
     if(player.x===0 && player.xvelocity < 0){ //left wall
       player.xvelocity = 0;
@@ -151,6 +165,7 @@
       player.yvelocity = 0;
     }
 
+    /*---Creates the Array of 9 Squares to Test---*/
     var testArray = [];
     testArray.push(smartMap[currentRow][currentCol]);
     if(currentRow > 0){
@@ -177,8 +192,9 @@
     if(currentCol < 9){
       testArray.push(smartMap[currentRow][currentCol+1]);
     }
-    //console.log(testArray);
+
     _.forEach(testArray, function(square){
+      /*---Tests for Wall Collisions---*/
       if(square.type==='ww'){
         if(player.x===square.x+square.width && player.y<square.y+square.height && player.y+player.height>square.y && player.xvelocity < 0){ //moving left into a wall
           player.xvelocity = 0;
@@ -193,31 +209,171 @@
           player.yvelocity = 0;
         }
       }
+
+      /*---Tests for Walking into Traps---*/
+      if(square.type==='gt' || square.type==='bt' || square.type==='rt'){
+        if(player.y+player.height<square.y+square.height && player.y+player.height>square.y && player.x+player.width-5>square.x && player.x<square.x+square.width-5){
+          context.save();
+          context.globalAlpha = 0.4;
+          switch(square.type)
+          {
+            case 'gt':
+              context.fillStyle='#00FF00';
+              break;
+            case 'bt':
+              context.fillStyle='#0000FF';
+              break;
+            case 'rt':
+              context.fillStyle='#FF0000';
+              break;
+          }
+          context.fillRect(square.x, square.y, 65, 65);
+          context.restore();
+          if(!trapActive){setOffTrap(square);}
+        }
+      }
     });
+  }
+
+  function setOffTrap(trap){
+    trapActive = true;
+    var countdown;
+    switch(trap.type)
+    {
+      case 'gt':
+        countdown = 2000;
+        break;
+      case 'bt':
+        countdown = 1000;
+        break;
+      case 'rt':
+        countdown = 500;
+        break;
+    }
+    trapTimer = {trap: trap, timer: setTimeout(killPlayer, countdown)};
+  }
+
+  function killPlayer(){
+    alive = false;
+    trapActive = false;
+    player.sprite.src = '/img/misc/death2.png';
+    spriteX = 0;
+    setTimeout(function(){
+      window.cancelAnimationFrame(request);
+      request = undefined;
+    }, 300);
+  }
+
+/*---Walking Animations---*/
+  function walkLeft(){
+    if(walkTimer===8){
+      walkTimer = 0;
+    }
+    if(walkTimer%2===0){
+      var i = walkTimer/2;
+      spriteX = 256 + (32*i);
+    }
+    walkTimer++;
+  }
+
+  function walkUp(){
+    if(walkTimer===8){
+      walkTimer = 0;
+    }
+    if(walkTimer%2===0){
+      var i = walkTimer/2;
+      spriteX = 0 + (32*i);
+    }
+    walkTimer++;
+  }
+
+  function walkRight(){
+    if(walkTimer===8){
+      walkTimer = 0;
+    }
+    if(walkTimer%2===0){
+      var i = walkTimer/2;
+      spriteX = 384 + (32*i);
+    }
+    walkTimer++;
+  }
+
+  function walkDown(){
+    if(walkTimer===8){
+      walkTimer = 0;
+    }
+    if(walkTimer%2===0){
+      var i = walkTimer/2;
+      spriteX = 128 + (32*i);
+    }
+    walkTimer++;
   }
 
 /*---Keypress Functions---*/
   function keyDown(e){
-    if(e.which===37){           //left arrow
-      player.xvelocity = -1;
-      player.sprite.src = '/img/avatars/lockeleft.gif';
-    }else if(e.which===38){     //up arrow
-      player.yvelocity = -1;
-      player.sprite.src = '/img/avatars/lockeback.gif';
-    }else if(e.which===39){     //right arrow
-      player.xvelocity = 1;
-    }else if(e.which===40){     //down arrow
-      player.yvelocity = 1;
-      player.sprite.src = '/img/avatars/locke.gif';
-    }else if(e.which===84){     //t key for trap disarming
-      player.xvelocity = 0;
-      player.yvelocity = 0;
-      player.sprite.src = '/img/avatars/lockekneel.gif';
-      var currentRow = Math.floor((player.y+player.height)/65);
-      var currentCol = Math.floor(player.x/65);
-      console.log(currentRow + ', ' + currentCol);
-      if(smartMap[currentRow][currentCol].type.slice(0,1)==='t'){
-        alert('Treasure obtained!');
+    if(alive){
+      if(e.which===37){           //left arrow
+        player.xvelocity = -1;
+        walkLeft();
+      }else if(e.which===38){     //up arrow
+        player.yvelocity = -1;
+        walkUp();
+      }else if(e.which===39){     //right arrow
+        player.xvelocity = 1;
+        walkRight();
+      }else if(e.which===40){     //down arrow
+        player.yvelocity = 1;
+        walkDown();
+      }else if(e.which===84){     //t key for opening treasure chests
+        player.xvelocity = 0;
+        player.yvelocity = 0;
+        spriteX = 512;
+        var currentRow = Math.floor((player.y+player.height)/65);
+        var currentCol = Math.floor(player.x/65);
+        var currentSquare = smartMap[currentRow][currentCol];
+        if(currentSquare.type.slice(0,1)==='t'){
+          if(currentSquare.type!=='tt'){
+            awardTreasure(currentSquare.type);
+          }
+          currentSquare.type = 'oo';
+          currentSquare.sprite.src = '/img/objects/openchest2.png';
+        }
+      }else if(e.which===71){     //g key for disarming green traps
+        player.xvelocity = 0;
+        player.yvelocity = 0;
+        spriteX = 512;
+        if(trapTimer){
+          if(trapTimer.trap.type==='gt'){
+            clearTimeout(trapTimer.timer);
+            trapTimer.trap.type = 'oo';
+            trapActive = false;
+            trapTimer = {};
+          }
+        }
+      }else if(e.which===66){     //b key for disarming blue traps
+        player.xvelocity = 0;
+        player.yvelocity = 0;
+        spriteX = 512;
+        if(trapTimer){
+          if(trapTimer.trap.type==='bt'){
+            clearTimeout(trapTimer.timer);
+            trapTimer.trap.type = 'oo';
+            trapActive = false;
+            trapTimer = {};
+          }
+        }
+      }else if(e.which===82){     //r key for disarming blue traps
+        player.xvelocity = 0;
+        player.yvelocity = 0;
+        spriteX = 512;
+        if(trapTimer){
+          if(trapTimer.trap.type==='rt'){
+            clearTimeout(trapTimer.timer);
+            trapTimer.trap.type = 'oo';
+            trapActive = false;
+            trapTimer = {};
+          }
+        }
       }
     }
   }
@@ -225,6 +381,7 @@
   function keyUp(e){
     player.xvelocity = 0;
     player.yvelocity = 0;
+    walkTimer = 0;
   }
 
 /*---Object Models---*/
@@ -240,21 +397,90 @@
 
   function Player(){
     this.sprite = new Image();
-    this.sprite.src = '/img/avatars/locke.gif';
+    this.sprite.src = '/img/avatars/lockesprites.png';
     this.x = 16;
     this.y = 593;
     this.xvelocity = 0;
     this.yvelocity = 0;
     this.width = 32;
     this.height = 48;
+    this.treasure = [];
   }
 
-/*---Helper Functions---*/
+/*----------------------Helper Functions-------------------------*/
+  function awardTreasure(type){
+    var treasure = {};
+    var r = random(10);
+    switch(type){
+      case 'tc':
+        if(r<10){
+          treasure.name = 'coppercoin';
+          treasure.val = 1;
+        }
+        else if(r===10){
+          treasure.name = 'copperbar';
+          treasure.val = 3;
+        }
+        break;
+      case 'ts':
+        if(r<10){
+          treasure.name = 'silvercoin';
+          treasure.val = 5;
+        }
+        else if(r===10){
+          treasure.name = 'silverbar';
+          treasure.val = 8;
+        }
+        break;
+      case 'tg':
+        if(r<10){
+          treasure.name = 'goldcoin';
+          treasure.val = 10;
+        }
+        else if(r===10){
+          treasure.name = 'goldbar';
+          treasure.val = 15;
+        }
+        break;
+      case 'ta':
+        treasure.name = 'art'+r;
+        treasure.val = 20 + (2*r);
+        break;
+      case 'tr':
+        treasure.name = 'ruby'+r;
+        treasure.val = 45 + (5*r);
+        break;
+    }
+    showTreasure(treasure.name);
+    player.treasure.push(treasure);
+    updateTreasureBox(treasure);
+  }
+
+  function showTreasure(name){
+    var i = new Image();
+    i.src = '/img/treasure/'+name+'.png';
+    i.onload = function(){
+      var t = {treasure: i, x:player.x, y:player.y-32};
+      drawTreasure.push(t);
+      setTimeout(function(){
+        drawTreasure.pop();
+      }, 2000);
+    };
+  }
+
+  function updateTreasureBox(treasure){
+    var $t = $('<div>');
+    $t.addClass('treasureLine');
+    $t.css('background-image', 'url("/img/treasure/'+treasure.name+'.png")');
+    $t.text(treasure.val);
+    $('#leftbox').append($t);
+  }
+
   function getPicSource(object){
     if(object==='tc'||object==='ts'||object==='tg'||object==='ta'||object==='tr'||object==='tt'){
-      return '/img/objects/treasure2.png';
+      return '/img/objects/treasure3.png';
     }else if(object==='gt'||object==='bt'||object==='rt'||object==='..'){
-      return '/img/objects/transparent.png';
+      return '/img/objects/bricktile.png';
     }else if(object==='ww'){
       return '/img/objects/wall3.png';
     }else if(object==='pp'){
