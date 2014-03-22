@@ -59,9 +59,9 @@
     for(var i=0; i<10; i++){
       var row = [];
       if(i===0){
-        row = ['..','..','..','..','..','..','..','..','..','pp'];
+        row = ['..','..','..','..','..','..','..','..','..','sd'];
       }else if (i===9){
-        row = ['pp','..','..','..','..','..','..','..','..','..'];
+        row = ['su','..','..','..','..','..','..','..','..','..'];
       }
       else{
         row.push('..');
@@ -241,7 +241,7 @@
     switch(trap.type)
     {
       case 'gt':
-        countdown = 2000;
+        countdown = 1500;
         break;
       case 'bt':
         countdown = 1000;
@@ -348,6 +348,9 @@
             trapTimer.trap.type = 'oo';
             trapActive = false;
             trapTimer = {};
+            var greens = parseInt($('#green').text());
+            greens++;
+            $('#green').text(greens);
           }
         }
       }else if(e.which===66){     //b key for disarming blue traps
@@ -360,6 +363,9 @@
             trapTimer.trap.type = 'oo';
             trapActive = false;
             trapTimer = {};
+            var blues = parseInt($('#blue').text());
+            blues++;
+            $('#blue').text(blues);
           }
         }
       }else if(e.which===82){     //r key for disarming blue traps
@@ -372,7 +378,22 @@
             trapTimer.trap.type = 'oo';
             trapActive = false;
             trapTimer = {};
+            var reds = parseInt($('#red').text());
+            reds++;
+            $('#red').text(reds);
           }
+        }
+      }else if(e.which===83){     //s key for taking stairs
+        player.xvelocity = 0;
+        player.yvelocity = 0;
+        spriteX = 512;
+        var currRow = Math.floor((player.y+player.height)/65);
+        var currCol = Math.floor(player.x/65);
+        var currSquare = smartMap[currRow][currCol];
+        if(currSquare.type==='su'){
+          leaveDungeon();
+        }else if(currSquare.type==='sd'){
+          nextLevel();
         }
       }
     }
@@ -384,7 +405,7 @@
     walkTimer = 0;
   }
 
-/*---Object Models---*/
+/*---------------------------Object Models---------------------------*/
   function MapObject(type, col, row){
     this.sprite = new Image();
     this.sprite.src = getPicSource(type);
@@ -408,6 +429,25 @@
   }
 
 /*----------------------Helper Functions-------------------------*/
+  function leaveDungeon(){
+    console.log('leaving the dungeon');
+    var id = $('#id').attr('data-id');
+    var url = '/users/'+id;
+
+    var green = $('#green').text();
+    var blue = $('#blue').text();
+    var red = $('#red').text();
+
+    var type = 'PUT';
+    var data = {green:green, blue:blue, red:red, treasure:player.treasure};
+    var success = function(){alert('It worked!');};
+    $.ajax({url: url, type: type, data: data, success: success});
+  }
+
+  function nextLevel(){
+    alert('Going to the next level!');
+  }
+
   function awardTreasure(type){
     var treasure = {};
     var r = random(10);
@@ -463,17 +503,16 @@
       var t = {treasure: i, x:player.x, y:player.y-32};
       drawTreasure.push(t);
       setTimeout(function(){
-        drawTreasure.pop();
+        drawTreasure.shift();
       }, 2000);
     };
   }
 
   function updateTreasureBox(treasure){
-    var $t = $('<div>');
-    $t.addClass('treasureLine');
-    $t.css('background-image', 'url("/img/treasure/'+treasure.name+'.png")');
-    $t.text(treasure.val);
-    $('#leftbox').append($t);
+    var $tBox = $('#'+treasure.name);
+    var count = parseInt($tBox.text());
+    count++;
+    $tBox.text(count);
   }
 
   function getPicSource(object){
@@ -483,7 +522,7 @@
       return '/img/objects/bricktile.png';
     }else if(object==='ww'){
       return '/img/objects/wall3.png';
-    }else if(object==='pp'){
+    }else if(object==='su'||object==='sd'){
       return '/img/objects/portal.gif';
     }
   }

@@ -1,7 +1,7 @@
 /* jshint expr:true */
 'use strict';
 
-process.env.DBNAME = 'nodemon-test';
+process.env.DBNAME = 'trapfinder-test';
 var request = require('supertest');
 var app = require('../../app/app');
 var expect = require('chai').expect;
@@ -70,7 +70,7 @@ describe('user', function(){
       .field('password', '1234')
       .end(function(err, res){
         expect(res.status).to.equal(302);
-        expect(res.text).to.equal('Moved Temporarily. Redirecting to /');
+        expect(res.text).to.contain('Moved Temporarily. Redirecting to /');
         done();
       });
     });
@@ -98,10 +98,10 @@ describe('user', function(){
     });
   });
 
-  describe('POST /logout', function(){
+  describe('GET /logout', function(){
     it('should log a user out of the app', function(done){
       request(app)
-      .post('/logout')
+      .get('/logout')
       .expect(302, done);
     });
   });
@@ -109,8 +109,19 @@ describe('user', function(){
   describe('GET /users/:id', function(){
     it('should redirect to the show page', function(done){
       request(app)
-      .get('/users/'+ inUser._id)
+      .get('/users/'+ inUser._id.toString())
       .expect(200, done);
+    });
+  });
+
+  describe('PUT /users/:id', function(){
+    it('should update a user\'s treasures and traps', function(done){
+      request(app)
+      .put('/users/'+ inUser._id)
+      .end(function(err, res){
+        expect(res.body.success).to.be.true;
+        done();
+      });
     });
   });
 });

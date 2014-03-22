@@ -2,7 +2,7 @@
 
 'use strict';
 
-process.env.DBNAME = 'nodemon-test';
+process.env.DBNAME = 'trapfinder-test';
 var expect = require('chai').expect;
 var User;
 
@@ -31,6 +31,10 @@ describe('User', function(){
       expect(u1.name).to.equal('Kessel');
       expect(u1.email).to.equal('kessel@nomail.com');
       expect(u1.password).to.equal('1234');
+      expect(u1.treasures).to.have.length(0);
+      expect(u1.green).to.equal(0);
+      expect(u1.blue).to.equal(0);
+      expect(u1.red).to.equal(0);
       done();
     });
   });
@@ -69,6 +73,21 @@ describe('User', function(){
           expect(u1._id.toString()).to.have.length(24);
           expect(u2._id).to.not.be.ok;
           done();
+        });
+      });
+    });
+
+    describe('#update', function(){
+      it('should update a user in the database', function(done){
+        var u1 = new User({name: 'Kessel', email:'kessel@nomail.com', password:'1234'});
+        u1.register(function(){
+          u1.name = 'Messel';
+          u1.update(function(err, count){
+            expect(err).to.be.null;
+            expect(count).to.equal(1);
+            expect(u1.name).to.equal('Messel');
+            done();
+          });
         });
       });
     });

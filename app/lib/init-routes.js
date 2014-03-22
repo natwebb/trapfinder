@@ -23,6 +23,7 @@ function load(app, fn){
   app.post('/login', d, users.authenticate);
   app.get('/logout', d, users.logout);
   app.get('/users/:id', d, users.show);
+  app.put('/users/:id', d, users.updateTT);
   console.log('Routes Loaded');
   fn();
 }

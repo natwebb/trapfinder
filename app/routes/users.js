@@ -40,3 +40,11 @@ exports.show = function(req, res){
   });
 };
 
+exports.updateTT = function(req, res){
+  User.findById(req.params.id, function(user){
+    user.updateTT(req.body);
+    user.update(function(){
+      res.send({success: true});
+    });
+  });
+};

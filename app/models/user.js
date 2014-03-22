@@ -4,23 +4,17 @@ module.exports = User;
 var bcrypt = require('bcrypt');
 var users = global.nss.db.collection('users');
 var Mongo = require('mongodb');
-
-/* ---------------------------------- *
- * User
- * _id
- * email
- * password
- * role
- *
- * #register
- * .findByEmailAndPassword
- * ---------------------------------- */
+var _ = require('lodash');
 
 function User(user){
   this.name = user.name;
   this.email = user.email;
   this.password = user.password;
   this.lastLogin = new Date();
+  this.treasures = [];
+  this.green = 0;
+  this.blue = 0;
+  this.red = 0;
 }
 
 User.prototype.register = function(fn){
@@ -41,7 +35,7 @@ User.prototype.register = function(fn){
 User.findById = function(id, fn){
   var _id = Mongo.ObjectID(id);
   users.findOne({_id:_id}, function(err, record){
-    fn(record);
+    fn(_.extend(record, User.prototype));
   });
 };
 
@@ -79,24 +73,17 @@ function insert(user, fn){
   });
 }
 
-function update(user, fn){
-  users.update({_id:user._id}, user, function(err, count){
-    fn(err);
+User.prototype.update = function(fn){
+  users.update({_id:this._id}, this, function(err, count){
+    fn(err, count);
   });
-}
+};
 
 function hashPassword(password, fn){
   bcrypt.hash(password, 8, function(err, hash){
     fn(hash);
   });
 }
-
-User.prototype.setHome = function(lat, lng, fn){
-  this.home = [parseFloat(lat), parseFloat(lng)];
-  update(this, function(err){
-    fn(err);
-  });
-};
 
 User.findAll = function(fn){
   users.find().toArray(function(err, records){
@@ -117,3 +104,12 @@ User.deleteById = function(id, fn){
   });
 };
 
+User.prototype.updateTT = function(data){
+  var self = this;
+  this.green += parseInt(data.green);
+  this.blue += parseInt(data.blue);
+  this.red += parseInt(data.red);
+  _.forEach(data.treasure, function(t){
+    self.treasures.push(t);
+  });
+};
