@@ -21,6 +21,10 @@ html(class='no-js', lang='en')
       section.top-bar-section
         ul.left
         ul.right
+          li: a(href='/about') About
+          li.divider
+          li: a(href='/users') Leaderboard
+          li.divider
           if user
             li: a(href='/game') Play
             li.divider

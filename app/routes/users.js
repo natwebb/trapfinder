@@ -1,6 +1,7 @@
 'use strict';
 
 var User = require('../models/user');
+var _ = require('lodash');
 
 exports.create = function(req, res){
   var user = new User(req.body);
@@ -31,6 +32,20 @@ exports.authenticate = function(req, res){
 exports.logout = function(req, res){
   req.session.destroy(function(){
     res.redirect('/');
+  });
+};
+
+exports.index = function(req, res){
+  User.findAll(function(users){
+    var sortedUsers = _.sortBy(users, function(user){
+      var sum = 0;
+      _.forEach(user.treasures, function(t){
+        sum += parseInt(t.val);
+      });
+      user.sum = sum;
+      return sum * -1;
+    });
+    res.render('users/index', {users:sortedUsers});
   });
 };
 

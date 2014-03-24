@@ -13,6 +13,7 @@
   var drawTreasure = [];
   var request;
   var alive = true;
+  var level = 1;
 
   $(document).ready(initialize);
 
@@ -45,16 +46,16 @@
       treasureoptions = ['tc','tc','tc','tc','ts','ts','ts','ts','tg','tg'];
     }
     else if(level===3){
-      trapoptions = ['gt','gt','bt','bt','bt','bt','bt','bt','bt','bt'];
-      treasureoptions = ['tt','tc','ts','ts','ts','ts','ts','tg','tg','tg'];
+      trapoptions = ['gt','gt','bt','bt','bt','bt','bt','bt','bt','rt'];
+      treasureoptions = ['tc','tc','ts','ts','ts','ts','ts','tg','tg','ta'];
     }
     else if(level===4){
       trapoptions = ['gt','gt','bt','bt','bt','bt','bt','bt','rt','rt'];
-      treasureoptions = ['tt','ts','ts','ts','tg','tg','tg','tg','ta','ta'];
+      treasureoptions = ['ts','ts','ts','ts','tg','tg','tg','ta','ta','ta'];
     }
     else if(level===5){
       trapoptions = ['gt','gt','bt','bt','bt','bt','rt','rt','rt','rt'];
-      treasureoptions = ['tt','tt','tg','tg','tg','tg','ta','ta','tr','tr'];
+      treasureoptions = ['ts','tg','tg','tg','tg','tg','ta','ta','tr','tr'];
     }
     for(var i=0; i<10; i++){
       var row = [];
@@ -256,12 +257,10 @@
   function killPlayer(){
     alive = false;
     trapActive = false;
-    player.sprite.src = '/img/misc/death2.png';
-    spriteX = 0;
+    spriteX = 544;
     setTimeout(function(){
-      window.cancelAnimationFrame(request);
-      request = undefined;
-    }, 300);
+      location.reload();
+    }, 2000);
   }
 
 /*---Walking Animations---*/
@@ -332,9 +331,7 @@
         var currentCol = Math.floor(player.x/65);
         var currentSquare = smartMap[currentRow][currentCol];
         if(currentSquare.type.slice(0,1)==='t'){
-          if(currentSquare.type!=='tt'){
-            awardTreasure(currentSquare.type);
-          }
+          awardTreasure(currentSquare.type);
           currentSquare.type = 'oo';
           currentSquare.sprite.src = '/img/objects/openchest2.png';
         }
@@ -440,12 +437,25 @@
 
     var type = 'PUT';
     var data = {green:green, blue:blue, red:red, treasure:player.treasure};
-    var success = function(){alert('It worked!');};
+    var success = function(){
+      window.location = '/users/'+id;
+    };
     $.ajax({url: url, type: type, data: data, success: success});
   }
 
   function nextLevel(){
-    alert('Going to the next level!');
+    if(level<5){
+      window.cancelAnimationFrame(request);
+      request = undefined;
+      level++;
+      $('#levelTracker').text('Level '+level);
+      generateMap(level);
+      player.x = 16;
+      player.y = 593;
+      if(!request){
+        animate();
+      }
+    }
   }
 
   function awardTreasure(type){
