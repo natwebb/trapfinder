@@ -1,5 +1,9 @@
 'use strict';
 
-exports.index = function(req, res){
+exports.singleplayer = function(req, res){
   res.render('game/index');
+};
+
+exports.multiplayer = function(req, res){
+  res.render('game/index2');
 };

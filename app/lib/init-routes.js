@@ -19,7 +19,8 @@ function load(app, fn){
 
   app.get('/', d, home.index);
   app.get('/about', d, home.about);
-  app.get('/game', d, game.index);
+  app.get('/alone', d, game.singleplayer);
+  app.get('/notalone', d, game.multiplayer);
   app.post('/register', d, users.create);
   app.post('/login', d, users.authenticate);
   app.get('/logout', d, users.logout);

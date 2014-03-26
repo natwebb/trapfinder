@@ -14,7 +14,7 @@ html(class='no-js', lang='en')
     nav.top-bar
       ul.title-area
         li.name
-          h1: a(href="/") Trapfinder: Alone in the Dark
+          h1: a(href="/") Trapfinder
         li.toggle-topbar.menu-icon
           a(href="#") Menu
 
@@ -26,7 +26,9 @@ html(class='no-js', lang='en')
           li: a(href='/users') Leaderboard
           li.divider
           if user
-            li: a(href='/game') Play
+            li: a(href='/alone') Alone in the Dark
+            li.divider
+            li: a(href='/notalone') You Are Not Alone
             li.divider
             li: a(href='/users/'+user._id.toString())= user.name
             li.divider
@@ -71,5 +73,6 @@ html(class='no-js', lang='en')
     script(src='/js/vendor/foundation.min.js')
     script(src='/js/vendor/lodash.js')
     script(src='/js/vendor/moment.js')
+    script(src='/socket.io/socket.io.js')
     script(src='/js/source/main.js')
     block scripts

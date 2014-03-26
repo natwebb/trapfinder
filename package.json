@@ -2,7 +2,7 @@
   "name": "name-of-application",
   "repository" : {
     "type" : "git",
-    "url"  : "http://github.com/USERNAME/NAME-OF-REPO.git"
+    "url"  : "http://github.com/natwebb/trapfinder.git"
   },
   "version": "0.0.1",
   "bin": {"coveralls" : "./node_modules/coveralls/bin/coveralls.js"},
@@ -23,7 +23,8 @@
     "jade":            "*",
     "express-less":    "*",
     "request":         "*",
-    "express-session": "*"
+    "express-session": "*",
+    "socket.io":       "*"
   },
   "devDependencies": {
     "grunt":                "*",

@@ -257,10 +257,14 @@
   function killPlayer(){
     alive = false;
     trapActive = false;
+    window.cancelAnimationFrame(request);
+    request = undefined;
     spriteX = 544;
-    setTimeout(function(){
-      location.reload();
-    }, 2000);
+    context.drawImage(player.sprite, spriteX, 0, player.width, player.height, player.x, player.y, player.width, player.height);
+    context.font = '90px Almendra SC';
+    context.fillStyle = 'rgba(255, 0, 0, 0.7)';
+    context.textAlign = 'center';
+    context.fillText('You\'re dead!', 325, 325);
   }
 
 /*---Walking Animations---*/
@@ -427,7 +431,6 @@
 
 /*----------------------Helper Functions-------------------------*/
   function leaveDungeon(){
-    console.log('leaving the dungeon');
     var id = $('#id').attr('data-id');
     var url = '/users/'+id;
 
@@ -497,6 +500,7 @@
         treasure.val = 20 + (2*r);
         break;
       case 'tr':
+        if(r===9 || r===10){r=1;}
         treasure.name = 'ruby'+r;
         treasure.val = 45 + (5*r);
         break;
