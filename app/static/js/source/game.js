@@ -88,7 +88,7 @@
       _.forEach(row, function(e){
         line += e;
       });
-      console.log(line);
+      //console.log(line);
     });
 
     parseMap(map);
@@ -110,7 +110,7 @@
       smartMap.push(newRow);
       rowCount++;
     });
-    console.log(smartMap);
+    //console.log(smartMap);
   }
 
 /*---------------------------Animation Functions---------------------------*/
@@ -536,8 +536,10 @@
       return '/img/objects/bricktile.png';
     }else if(object==='ww'){
       return '/img/objects/wall3.png';
-    }else if(object==='su'||object==='sd'){
-      return '/img/objects/portal.gif';
+    }else if(object==='su'){
+      return '/img/objects/stairsup.png';
+    }else if(object==='sd'){
+      return '/img/objects/stairsdown.png';
     }
   }
 
