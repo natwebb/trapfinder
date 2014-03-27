@@ -24,5 +24,5 @@ And for testing,
 - TravisCI
 - Coveralls
 
-*You Are Not Alone* is the two-player version of *Trapfinder*. It's similar to *Alone in the Dark*, using all the same technologies but adding **socket.io** to create a persistent communcation pathway between the server and the two players' browsers. Much more of
+*You Are Not Alone* is the two-player version of *Trapfinder*. It's similar to *Alone in the Dark*, using all the same technologies but adding **socket.io** to create a persistent communcation pathway between the server and the two players' browsers. It also adds socket.io-client to facilitate mocha testing of the socket file. Much more of
 the game intelligence lives on the server, and both players see the same game screen dynamically change. It also has weapons, which is cool.
