@@ -1,5 +1,5 @@
 {
-  "name": "name-of-application",
+  "name": "trapfinder",
   "repository" : {
     "type" : "git",
     "url"  : "http://github.com/natwebb/trapfinder.git"

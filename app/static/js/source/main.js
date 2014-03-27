@@ -13,7 +13,7 @@
   function toggleRegister(){
     if($('#registerBox:hidden').length){
       $('#loginBox').hide();
-      $('#registerBox').show(401);
+      $('#registerBox').show(400);
     }else{
       $('#registerBox').hide(200);
     }
@@ -22,7 +22,7 @@
   function toggleLogin(){
     if($('#loginBox:hidden').length){
       $('#registerBox').hide();
-      $('#loginBox').show(401);
+      $('#loginBox').show(400);
     }else{
       $('#loginBox').hide(200);
     }
