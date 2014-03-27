@@ -93,8 +93,32 @@ describe('User', function(){
     });
   });
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FIND METHODS >>>>>>>>>>>>>>>>>>>>>>>>>>
+  describe('.deleteById', function(){
+    it('should delete a user by ID', function(done){
+      var u2 = new User({name: 'John', email:'john@nomail.com', password:'1234'});
+      u2.register(function(){
+        User.deleteById(u2._id.toString(), function(count){
+          expect(count).to.equal(1);
+          done();
+        });
+      });
+    });
+  });
 
+  describe('#updateTT', function(){
+    it('should update the trap and treasure statistics of a user', function(){
+      var u2 = new User({name: 'John', email:'john@nomail.com', password:'1234'});
+      u2.register(function(){
+        u2.updateTT({green: 2, blue: 0, red: 1, treasure: [{name: 'treasure', val: 1}]});
+        expect(u2.green).to.equal(2);
+        expect(u2.blue).to.equal(0);
+        expect(u2.red).to.equal(1);
+        expect(u2.treasures.length).to.equal(1);
+      });
+    });
+  });
+
+/*------------------Find Methods------------------*/
   describe('.findById', function(){
     it('should find a user by id', function(done){
       var u1 = new User({name: 'Sam', email:'sam@nomail.com', password:'1234'});
@@ -142,18 +166,4 @@ describe('User', function(){
       });
     });
   });
-
-  describe('.findByName', function(){
-    it('should find users by name in the db', function(done){
-      var u2 = new User({name: 'Adam', email:'adam@nomail.com', password:'1234'});
-      u2.register(function(){
-        User.findByName('Adam', function(users){
-          expect(users.name).to.equal('Adam');
-          done();
-        });
-      });
-    });
-  });
-
-
 });

@@ -10,7 +10,6 @@ function User(user){
   this.name = user.name;
   this.email = user.email;
   this.password = user.password;
-  this.lastLogin = new Date();
   this.treasures = [];
   this.green = 0;
   this.blue = 0;
@@ -32,28 +31,11 @@ User.prototype.register = function(fn){
   });
 };
 
-User.findById = function(id, fn){
-  var _id = Mongo.ObjectID(id);
-  users.findOne({_id:_id}, function(err, record){
-    fn(_.extend(record, User.prototype));
+function hashPassword(password, fn){
+  bcrypt.hash(password, 8, function(err, hash){
+    fn(hash);
   });
-};
-
-User.findByEmailAndPassword = function(email, password, fn){
-  users.findOne({email:email}, function(err, user){
-    if(user){
-      bcrypt.compare(password, user.password, function(err, result){
-        if(result){
-          fn(user);
-        }else{
-          fn();
-        }
-      });
-    }else{
-      fn();
-    }
-  });
-};
+}
 
 function insert(user, fn){
   users.findOne({email:user.email}, function(err, emailFound){
@@ -79,24 +61,6 @@ User.prototype.update = function(fn){
   });
 };
 
-function hashPassword(password, fn){
-  bcrypt.hash(password, 8, function(err, hash){
-    fn(hash);
-  });
-}
-
-User.findAll = function(fn){
-  users.find().toArray(function(err, records){
-    fn(records);
-  });
-};
-
-User.findByName = function(name, fn){
-  users.findOne({name:name}, function(err, record){
-    fn(record);
-  });
-};
-
 User.deleteById = function(id, fn){
   var _id = Mongo.ObjectID(id);
   users.remove({_id:_id}, function(err, count){
@@ -111,5 +75,35 @@ User.prototype.updateTT = function(data){
   this.red += parseInt(data.red);
   _.forEach(data.treasure, function(t){
     self.treasures.push(t);
+  });
+};
+
+/*----------------Find Methods----------------*/
+User.findById = function(id, fn){
+  var _id = Mongo.ObjectID(id);
+  users.findOne({_id:_id}, function(err, record){
+    fn(_.extend(record, User.prototype));
+  });
+};
+
+User.findByEmailAndPassword = function(email, password, fn){
+  users.findOne({email:email}, function(err, user){
+    if(user){
+      bcrypt.compare(password, user.password, function(err, result){
+        if(result){
+          fn(user);
+        }else{
+          fn();
+        }
+      });
+    }else{
+      fn();
+    }
+  });
+};
+
+User.findAll = function(fn){
+  users.find().toArray(function(err, records){
+    fn(records);
   });
 };

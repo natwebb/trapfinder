@@ -6,7 +6,7 @@ var request = require('supertest');
 var app = require('../../app/app');
 var expect = require('chai').expect;
 var User, inUser;
-//var cookie;
+var cookie;
 
 describe('user', function(){
 
@@ -25,14 +25,6 @@ describe('user', function(){
       inUser.register(function(){
         done();
       });
-    });
-  });
-
-  describe('GET /', function(){
-    it('should display the home page', function(done){
-      request(app)
-      .get('/')
-      .expect(200, done);
     });
   });
 
@@ -106,21 +98,44 @@ describe('user', function(){
     });
   });
 
-  describe('GET /users/:id', function(){
-    it('should redirect to the show page', function(done){
+  describe('GET /users', function(){
+    it('should render the leaderboard', function(done){
       request(app)
-      .get('/users/'+ inUser._id.toString())
+      .get('/users')
       .expect(200, done);
     });
   });
 
-  describe('PUT /users/:id', function(){
-    it('should update a user\'s treasures and traps', function(done){
+  describe('AUTHORIZED', function(){
+    beforeEach(function(done){
       request(app)
-      .put('/users/'+ inUser._id)
+      .post('/login')
+      .field('email', 'nat@nomail.com')
+      .field('password', '1234')
       .end(function(err, res){
-        expect(res.body.success).to.be.true;
+        cookie = res.headers['set-cookie'];
         done();
+      });
+    });
+
+    describe('GET /users/:id', function(){
+      it('should render the show page', function(done){
+        request(app)
+        .get('/users/'+ inUser._id.toString())
+        .set('cookie', cookie)
+        .expect(200, done);
+      });
+    });
+
+    describe('PUT /users/:id', function(){
+      it('should update a user\'s treasures and traps', function(done){
+        request(app)
+        .put('/users/'+ inUser._id)
+        .set('cookie', cookie)
+        .end(function(err, res){
+          expect(res.body.success).to.be.true;
+          done();
+        });
       });
     });
   });
