@@ -37,7 +37,8 @@
     "supertest":            "*",
     "coveralls":            "*",
     "mocha-lcov-reporter":  "*",
-    "blanket":              "*"
+    "blanket":              "*",
+    "socket.io-client":     "*"
   },
   "config": {
     "blanket": {
